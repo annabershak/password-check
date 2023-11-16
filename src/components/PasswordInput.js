@@ -1,22 +1,31 @@
-// src/components/PasswordInput.js
+
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const PasswordInput = () => {
   const [password, setPassword] = useState('');
   const [isValidPassword, setIsValidPassword] = useState(true);
   const [containsWord, setContainsWord] = useState(false);
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     const newPassword = e.target.value;
     const isValid = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/.test(newPassword);
 
     setPassword(newPassword);
     setIsValidPassword(isValid);
 
-    // Check if the password contains a full English word
-    setContainsWord(newPassword.includes('hello')); // Replace with actual check
+    
+    try {
+      const response = await axios.get(
+        'https://api.dictionaryapi.dev/api/v2/entries/en_US/' + newPassword
+      );
 
-    // You can replace the above line with an API call to check against a dictionary
+     
+      setContainsWord(response.data.length > 0);
+    } catch (error) {
+      console.error('Error checking password against dictionary:', error);
+      setContainsWord(false);
+    }
   };
 
   return (
